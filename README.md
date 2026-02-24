@@ -5,14 +5,13 @@
 - **同步**：接口会等待 Gemini 返回后再响应
 - **轮询**：第一次请求只触发后台任务；后续按 `task_id` 查询状态/结果（适合“每秒调用一次、但不想阻塞等待”的场景）
 
-所有接口默认启用 Header 密钥认证（`X-API-SECRET`）。
+所有接口默认启用 Header 认证，必须同时提供 `X-API-SECRET` 和 `X-GEMINI-API-KEY`。
 
 ## Docker 快捷部署（推荐）
 
 1) 在项目根目录准备 `.env`（不要提交到 git），可从 `.env.example` 复制：
 
 ```
-GEMINI_API_KEY=xxx
 GEMINI_MODEL=gemini-2.5-flash
 API_SECRET=your-secret
 ```
@@ -43,7 +42,6 @@ uv run uvicorn main:app --host 0.0.0.0 --port 8000
 
 确保进程环境里有这些变量（或放在项目根目录 `.env` 中）：
 
-- `GEMINI_API_KEY`：必填
 - `GEMINI_MODEL`：可选，默认 `gemini-2.5-flash`
 - `API_SECRET`：必填（用于请求头认证）
 
@@ -52,6 +50,7 @@ uv run uvicorn main:app --host 0.0.0.0 --port 8000
 所有接口都需要请求头：
 
 - `X-API-SECRET: your-secret`
+- `X-GEMINI-API-KEY: your-gemini-api-key`
 
 ## API
 
@@ -85,7 +84,7 @@ $body = @{ image = $b64 } | ConvertTo-Json
 Invoke-RestMethod `
   -Method Post `
   -Uri "http://localhost:8000/ocr/poll" `
-  -Headers @{ "X-API-SECRET" = "your-secret" } `
+  -Headers @{ "X-API-SECRET" = "your-secret"; "X-GEMINI-API-KEY" = "your-gemini-api-key" } `
   -ContentType "application/json" `
   -Body $body
 ```
@@ -96,7 +95,7 @@ Invoke-RestMethod `
 Invoke-RestMethod `
   -Method Get `
   -Uri "http://localhost:8000/ocr/task/<task_id>" `
-  -Headers @{ "X-API-SECRET" = "your-secret" }
+  -Headers @{ "X-API-SECRET" = "your-secret"; "X-GEMINI-API-KEY" = "your-gemini-api-key" }
 ```
 
 ### curl
@@ -105,6 +104,7 @@ Invoke-RestMethod `
 curl -sS -X POST "http://localhost:8000/ocr/poll" \
   -H "Content-Type: application/json" \
   -H "X-API-SECRET: your-secret" \
+  -H "X-GEMINI-API-KEY: your-gemini-api-key" \
   -d '{"image":"<base64>"}'
 ```
 

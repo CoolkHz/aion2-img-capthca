@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-GEMINI_API_KEY_ENV = "GEMINI_API_KEY"
 GEMINI_MODEL_ENV = "GEMINI_MODEL"
 GEMINI_MODEL_DEFAULT = "gemini-2.5-flash"
 
@@ -27,19 +26,13 @@ def load_env(dotenv_path: str | os.PathLike[str] | None = None) -> None:
 
 @dataclass(frozen=True)
 class GeminiConfig:
-    api_key: str
     model: str
 
 
 def get_gemini_config() -> GeminiConfig:
-    api_key = os.getenv(GEMINI_API_KEY_ENV)
-    if not api_key:
-        load_env()
-        api_key = os.getenv(GEMINI_API_KEY_ENV)
-    if not api_key:
-        raise RuntimeError(f"{GEMINI_API_KEY_ENV} env var is not set")
+    load_env()
     model = os.getenv(GEMINI_MODEL_ENV, GEMINI_MODEL_DEFAULT)
-    return GeminiConfig(api_key=api_key, model=model)
+    return GeminiConfig(model=model)
 
 
 def get_api_secret() -> str:
